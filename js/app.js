@@ -445,6 +445,134 @@
     });
   }
 
+  /* ---------- 역대 회차 자동 업데이트 ---------- */
+
+  var UPDATE_BASE = (window.LOTTO_CONFIG && LOTTO_CONFIG.updateBase) || 'https://smok95.github.io/lotto/results/';
+  var CACHE_KEY = 'lottopick.draws.cache.v1';
+  var META_KEY = 'lottopick.draws.meta.v1';
+  var AUTO_KEY = 'lottopick.autoupdate.v1';
+  var CHECK_INTERVAL = 6 * 60 * 60 * 1000; // 최소 6시간 간격으로 확인
+  var MAX_STEP_FETCH = 30;                 // 이보다 많이 밀렸으면 전체 파일 한 번에 받는다
+
+  function readJson(key, fallback) {
+    try { var raw = window.localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }
+    catch (e) { return fallback; }
+  }
+  function writeJson(key, value) {
+    try { window.localStorage.setItem(key, JSON.stringify(value)); return true; }
+    catch (e) { return false; }
+  }
+  function isAutoOn() {
+    return readJson(AUTO_KEY, true) !== false;
+  }
+  function lastRoundOf(list) {
+    return list.length ? list[list.length - 1].round : 0;
+  }
+
+  // 공개 결과 JSON(draw_no, numbers, bonus_no, divisions) → 앱 형식
+  function toDraw(r) {
+    return {
+      round: r.draw_no,
+      nums: r.numbers.slice().sort(function (a, b) { return a - b; }),
+      bonus: r.bonus_no,
+      prizes: Array.isArray(r.divisions)
+        ? r.divisions.slice(0, 5).map(function (d) { return d && d.prize !== undefined ? [d.prize, d.winners] : null; })
+        : undefined,
+    };
+  }
+
+  function fetchJson(url) {
+    var ctrl = typeof AbortController === 'function' ? new AbortController() : null;
+    var timer = ctrl ? setTimeout(function () { ctrl.abort(); }, 8000) : null;
+    return fetch(url, { cache: 'no-store', signal: ctrl ? ctrl.signal : undefined })
+      .then(function (res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+      })
+      .finally(function () { if (timer) clearTimeout(timer); });
+  }
+
+  // 저장된 캐시가 번들 데이터보다 최신이면 캐시를 쓴다 (오프라인에서도 최신 회차 유지)
+  function restoreCachedDraws() {
+    var cache = readJson(CACHE_KEY, null);
+    if (!cache || !Array.isArray(cache.draws) || !cache.draws.length) return null;
+    if (E.validateDraws(cache.draws).length) return null;
+    return lastRoundOf(cache.draws) > lastRoundOf(draws) ? cache.draws : null;
+  }
+
+  function setUpdateStatus(text, tone) {
+    var el = $('db-update-status');
+    if (!el) return;
+    el.textContent = text;
+    el.className = 'update-status ' + (tone || '');
+  }
+
+  function renderUpdatePanel() {
+    var meta = readJson(META_KEY, {});
+    var toggle = $('db-auto');
+    if (toggle) toggle.checked = isAutoOn();
+    var when = meta.lastCheck ? new Date(meta.lastCheck).toLocaleString('ko-KR') : '아직 확인 전';
+    var last = lastRoundOf(draws);
+    if (meta.error) {
+      setUpdateStatus('확인하지 못했습니다. 저장된 ' + last + '회 데이터를 사용합니다.', 'warn');
+    } else {
+      setUpdateStatus('최신 ' + last + '회 · 마지막 확인 ' + when, 'ok');
+    }
+  }
+
+  // 최신 회차를 확인해 부족한 회차만 받아 합친다. 검증에 실패하면 기존 데이터를 그대로 둔다.
+  function checkForUpdates(options) {
+    var force = !!(options && options.force);
+    var meta = readJson(META_KEY, {});
+    // 마지막 확인이 성공했고 6시간이 지나지 않았으면 건너뛴다 (실패는 다음 실행 때 다시 시도)
+    if (!force && (!isAutoOn() || (meta.lastCheck && !meta.error && Date.now() - meta.lastCheck < CHECK_INTERVAL))) {
+      return Promise.resolve({ added: 0, skipped: true });
+    }
+    setUpdateStatus('새 회차를 확인하는 중…', '');
+
+    var localLast = lastRoundOf(draws);
+    return fetchJson(UPDATE_BASE + 'latest.json').then(function (latest) {
+      var newest = latest.draw_no;
+      if (!newest || newest <= localLast) return { added: 0 };
+      var count = newest - localLast;
+      var job = count > MAX_STEP_FETCH
+        ? fetchJson(UPDATE_BASE + 'all.json').then(function (rows) {
+            return rows.filter(function (r) { return r.draw_no > localLast; }).map(toDraw);
+          })
+        : Promise.all(range(localLast + 1, newest).map(function (n) {
+            return fetchJson(UPDATE_BASE + n + '.json').then(toDraw);
+          }));
+      return job.then(function (added) {
+        var merged = draws.concat(added).sort(function (a, b) { return a.round - b.round; });
+        var errors = E.validateDraws(merged);
+        var gaps = E.findMissingRounds(merged);
+        if (errors.length || gaps.length) {
+          throw new Error('검증 실패: ' + (errors[0] || ('누락 회차 ' + gaps[0])));
+        }
+        loadData(merged, false);
+        writeJson(CACHE_KEY, { savedAt: Date.now(), draws: merged });
+        return { added: added.length, latest: lastRoundOf(merged) };
+      });
+    }).then(function (result) {
+      writeJson(META_KEY, { lastCheck: Date.now(), error: null });
+      renderUpdatePanel();
+      if (result.added) toast('새 회차 ' + result.added + '개가 반영되었습니다 (최신 ' + result.latest + '회).');
+      return result;
+    }).catch(function (err) {
+      writeJson(META_KEY, { lastCheck: Date.now(), error: String(err.message || err) });
+      var note = '오프라인이거나 확인에 실패했습니다. 저장된 ' + lastRoundOf(draws) + '회 데이터를 사용합니다.';
+      setUpdateStatus(note, 'warn');
+      if (options && options.force) toast('업데이트를 확인하지 못했습니다.');
+      return { added: 0, error: err };
+    });
+  }
+
+  function range(from, to) {
+    var out = [];
+    for (var i = from; i <= to; i++) out.push(i);
+    return out;
+  }
+
   /* ---------- 설치 마법사 / 라이선스 ---------- */
 
   var LICENSE_KEY = 'lottopick.license.v1';
@@ -481,8 +609,14 @@
     initQr();
     registerServiceWorker();
     if (!hasAcceptedLicense()) showSetup();
+    var cached = restoreCachedDraws();
+    if (cached) { draws = cached; isSample = false; }
     if (!loadData(draws, isSample)) return;
+    renderUpdatePanel();
     renderSaved();
+    checkForUpdates({ force: false });
+    // 앱이 켜져 있는 동안에도 6시간마다 확인한다
+    setInterval(function () { checkForUpdates({ force: false }); }, CHECK_INTERVAL);
     setView('dashboard');
   }
 
@@ -971,6 +1105,8 @@
         case 'apply-filter':
           closeSheet();
           return runGenerate();
+        case 'check-updates':
+          return checkForUpdates({ force: true });
         case 'open-sheet':
           return openSheet();
         case 'close-sheet':
@@ -1052,6 +1188,12 @@
       if (e.target.hasAttribute && e.target.hasAttribute('data-sc')) {
         state.selfCheck[Number(e.target.getAttribute('data-sc'))] = e.target.checked;
         return renderSelfCheck();
+      }
+      if (e.target.id === 'db-auto') {
+        writeJson(AUTO_KEY, e.target.checked);
+        renderUpdatePanel();
+        if (e.target.checked) checkForUpdates({ force: false });
+        return;
       }
       if (e.target.id === 'setup-agree') {
         $('setup-start').disabled = !e.target.checked && !hasAcceptedLicense();

@@ -1255,3 +1255,25 @@ body.locked { overflow: hidden; }
 @media (max-width: 720px) and (prefers-reduced-motion: reduce) {
   .filter-panel { transition: none; }
 }
+
+/* ---------- 자동 업데이트 상태 ---------- */
+.update-card { margin-bottom: 20px; }
+.update-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+.update-status {
+  position: relative; padding-left: 16px; font-size: 13px; color: var(--muted);
+}
+.update-status::before {
+  content: ""; position: absolute; left: 0; top: 7px; width: 7px; height: 7px; border-radius: 50%;
+  background: var(--faint);
+}
+.update-status.ok { color: var(--text); }
+.update-status.ok::before { background: var(--ok); box-shadow: 0 0 0 3px rgba(74, 222, 128, .16); }
+.update-status.warn { color: #fde68a; }
+.update-status.warn::before { background: var(--warn); }
+.update-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.switch { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text); }
+.switch input { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; }
+@media (max-width: 720px) {
+  .update-row { flex-direction: column; align-items: stretch; }
+  .update-actions { justify-content: space-between; }
+}
