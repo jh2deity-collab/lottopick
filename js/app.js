@@ -117,6 +117,8 @@
     $('data-status').innerHTML = '<b>' + (isSample ? '샘플 데이터' : '실데이터') + '</b>' +
       '<span>' + state.stats.total + '회차 · 최신 ' + state.stats.latestRound + '회</span>';
     $('sidebar-foot').classList.toggle('is-sample', !!isSample);
+    var chip = $('m-chip');
+    if (chip) chip.textContent = state.stats.latestRound + '회 · ' + (isSample ? '샘플' : '실데이터');
 
     var notes = [];
     if (isSample) {
@@ -512,6 +514,8 @@
       b.classList.toggle('active', b.getAttribute('data-view') === view);
     });
     $('page-title').textContent = VIEW_TITLES[view] || '';
+    document.body.setAttribute('data-view', view);
+    if (view !== 'dashboard') closeSheet();
     if (view === 'saved') renderSaved();
     if (view === 'db') renderDb();
   }
@@ -635,6 +639,24 @@
         '<span class="balls">' + ballsHtml(c.nums, true) + '</span>' +
         '<span class="cand-score">' + c.score + '점</span></button>';
     }).join(''));
+  }
+
+  /* ---------- 스마트폰: 조건 시트 ---------- */
+
+  function openSheet() {
+    var panel = $('filter-sheet');
+    if (!panel) return;
+    panel.classList.add('open');
+    document.querySelector('.sheet-backdrop').hidden = false;
+    document.body.classList.add('sheet-open');
+  }
+
+  function closeSheet() {
+    var panel = $('filter-sheet');
+    if (!panel) return;
+    panel.classList.remove('open');
+    document.querySelector('.sheet-backdrop').hidden = true;
+    document.body.classList.remove('sheet-open');
   }
 
   /* ---------- 대시보드: 필터 패널 ---------- */
@@ -945,8 +967,14 @@
       var action = t.getAttribute('data-action');
       switch (action) {
         case 'generate':
-        case 'apply-filter':
           return runGenerate();
+        case 'apply-filter':
+          closeSheet();
+          return runGenerate();
+        case 'open-sheet':
+          return openSheet();
+        case 'close-sheet':
+          return closeSheet();
         case 'reset-filter':
           return resetFilter();
         case 'select-cand':

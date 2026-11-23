@@ -14,6 +14,13 @@
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
+  <!-- 스마트폰 상단 앱 바 (데스크톱에서는 숨김) -->
+  <header class="m-appbar" aria-label="앱 상단">
+    <img src="assets/icon.svg" alt="" width="30" height="30" />
+    <span class="m-title">LottoPick Lab</span>
+    <span class="m-chip" id="m-chip">불러오는 중</span>
+  </header>
+
   <div class="app">
 
     <!-- 좌측 고정 사이드바 -->
@@ -134,13 +141,13 @@
             <div class="card" id="recommend"></div>
 
             <!-- 후보 목록 -->
-            <div class="card">
+            <div class="card" id="cand-card">
               <div class="card-head"><h3>후보 조합 상위 목록</h3><span class="muted" id="cand-meta"></span></div>
               <div id="candidates" class="cand-list"></div>
             </div>
 
             <!-- 히트맵 -->
-            <div class="card">
+            <div class="card" id="heat-card">
               <div class="card-head">
                 <h3>번호 출현 히트맵 (1–45)</h3>
                 <span class="muted">전체 회차 기준 출현 횟수</span>
@@ -153,7 +160,7 @@
             </div>
 
             <!-- 번호대 분포 -->
-            <div class="card">
+            <div class="card" id="band-card">
               <div class="card-head">
                 <h3>번호대별 출현 분포</h3>
                 <span class="muted" id="band-meta"></span>
@@ -164,8 +171,8 @@
 
           <!-- 필터 컨트롤 패널 -->
           <aside class="col">
-            <div class="card filter-panel">
-              <div class="card-head"><h3>필터 컨트롤 패널</h3></div>
+            <div class="card filter-panel" id="filter-sheet">
+              <div class="card-head"><h3>필터 컨트롤 패널</h3><button class="sheet-close" data-action="close-sheet" aria-label="닫기">✕</button></div>
 
               <div class="field">
                 <label>번호 지정 모드 <span class="hint">번호판을 눌러 설정</span></label>
@@ -299,6 +306,12 @@
       </footer>
     </main>
   </div>
+
+  <!-- 스마트폰: 조건 시트 열기 버튼과 배경 -->
+  <button class="m-fab" data-action="open-sheet" aria-controls="filter-sheet">
+    <span aria-hidden="true">⚙</span> 조건 설정
+  </button>
+  <div class="sheet-backdrop" data-action="close-sheet" hidden></div>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
