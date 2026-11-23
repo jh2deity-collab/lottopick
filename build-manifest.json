@@ -1,7 +1,7 @@
 {
   "name": "lottopick-lab",
   "version": "1.0.0",
-  "builtAt": "2026-11-23T20:22:53.698Z",
+  "builtAt": "2026-11-23T20:33:01.392Z",
   "files": [
     {
       "path": "app-config.js",
@@ -35,8 +35,8 @@
     },
     {
       "path": "css/style.css",
-      "bytes": 37151,
-      "sha256": "13bd7942b1c10e1199474d9d9f218bf730d69b3cae5a8845a87c18bc264d668c"
+      "bytes": 45287,
+      "sha256": "3822f67d2a3771527ebdf47483fb71ce24204b6321ead68bd2b912c758190a53"
     },
     {
       "path": "data/draws.js",
@@ -45,8 +45,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 16639,
-      "sha256": "94ee28902ea5c8d31afc4336a74d7a6c084d6c36f39cc75e89634acd9cbfd4bb"
+      "bytes": 16659,
+      "sha256": "34e0c1bb3d272902184945502b87161d93bf28468316e9f822c4e64885efd5a1"
     },
     {
       "path": "install.html",
