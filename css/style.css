@@ -1277,3 +1277,13 @@ body.locked { overflow: hidden; }
   .update-row { flex-direction: column; align-items: stretch; }
   .update-actions { justify-content: space-between; }
 }
+
+/* ---------- 후보 공유 ---------- */
+.cand-head-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.btn.kakao {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: #fee500; border-color: #fee500; color: #191919; font-weight: 700;
+  box-shadow: 0 8px 18px -10px rgba(254, 229, 0, .7);
+}
+.btn.kakao svg { width: 16px; height: 16px; fill: #191919; }
+.btn.kakao:hover:not(:disabled) { background: #ffe81f; border-color: #ffe81f; color: #191919; filter: brightness(1.03); }

@@ -1,12 +1,12 @@
 {
   "name": "lottopick-lab",
   "version": "1.0.0",
-  "builtAt": "2026-11-23T20:49:21.891Z",
+  "builtAt": "2026-11-23T20:55:57.222Z",
   "files": [
     {
       "path": "app-config.js",
-      "bytes": 143,
-      "sha256": "a78680c3e5348760dd6b23996e8c1861eb75482921fbac4ca2458bdaa703f56a"
+      "bytes": 159,
+      "sha256": "39aecf0e376624aec08112bcc5d6bd07e42a9bb8648d1d4489b45477ba973b8c"
     },
     {
       "path": "assets/app.ico",
@@ -35,8 +35,8 @@
     },
     {
       "path": "css/style.css",
-      "bytes": 55622,
-      "sha256": "408948238806761657e137b7648c55e3eadf78c5a90b47c9e58f77e4dac6f822"
+      "bytes": 56149,
+      "sha256": "3ba60ed01ef40c3382fbb93f42b0c83c6642da74bc0b8cf8369b33ce932f3a0f"
     },
     {
       "path": "data/draws.js",
@@ -45,8 +45,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 18178,
-      "sha256": "5e82d5826ebdde8c2ec1ab51c88b779ca45f07b134629eafc4fdb3600461b427"
+      "bytes": 18549,
+      "sha256": "9f447108b8082ef20a32eb87450e3e3760421cec133f452313c65fbabc7c5e57"
     },
     {
       "path": "install.html",
@@ -55,8 +55,8 @@
     },
     {
       "path": "js/app.js",
-      "bytes": 51997,
-      "sha256": "1f8eea183780c6632e2850a9b18c553251cc1cb1e87600deec94ac68e49f5c5e"
+      "bytes": 54901,
+      "sha256": "7464d66355a7406a9ad53edc734b6f0cdc4c6952724bcfd87e341c65160cc62d"
     },
     {
       "path": "js/engine.js",

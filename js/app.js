@@ -573,6 +573,80 @@
     return out;
   }
 
+  /* ---------- 후보 조합 공유 (카카오톡 · 공유 시트 · 복사) ---------- */
+
+  function shareText() {
+    var r = state.result;
+    if (!r || !r.ok || !r.candidates.length) return null;
+    var lines = [
+      '[LottoPick Lab] 후보 조합 ' + r.candidates.length + '개',
+      '기준: 최신 ' + state.stats.latestRound + '회 데이터 · 통계 필터 통과 조합',
+      ''
+    ];
+    r.candidates.forEach(function (c, i) {
+      lines.push((i + 1) + '위  ' + c.score + '점  ' + c.nums.join(', '));
+    });
+    lines.push('');
+    lines.push('※ 과거 데이터의 통계 지표 분석 결과이며, 당첨 번호를 예측하거나 확정하지 않습니다.');
+    return lines.join('\n');
+  }
+
+  function shareUrl() {
+    var cfg = (window.LOTTO_CONFIG && LOTTO_CONFIG.publicUrl) || '';
+    if (cfg) return cfg;
+    return location.protocol.indexOf('http') === 0 ? location.href.split('#')[0] : undefined;
+  }
+
+  function copyText(text) {
+    var ok = navigator.clipboard && navigator.clipboard.writeText
+      ? navigator.clipboard.writeText(text)
+      : Promise.reject(new Error('clipboard'));
+    ok.then(function () {
+      toast('후보 조합을 복사했습니다. 카카오톡에 붙여넣으세요.');
+    }, function () {
+      window.prompt('아래 내용을 복사해 카카오톡에 붙여넣으세요.', text);
+    });
+  }
+
+  function shareCandidates() {
+    var text = shareText();
+    if (!text) return toast('공유할 후보 조합이 없습니다.');
+    var url = shareUrl();
+
+    // 1) 카카오 공식 공유 (JavaScript 키가 설정된 경우)
+    if (window.Kakao && Kakao.isInitialized && Kakao.isInitialized()) {
+      Kakao.Share.sendDefault({
+        objectType: 'text',
+        text: text,
+        link: { mobileWebUrl: url || location.href, webUrl: url || location.href },
+        buttonTitle: '앱에서 보기'
+      });
+      return;
+    }
+    // 2) 휴대폰 공유 창 (카카오톡 포함)
+    if (navigator.share) {
+      navigator.share({ title: 'LottoPick Lab 후보 조합', text: text, url: url })
+        .catch(function (err) {
+          if (err && err.name !== 'AbortError') copyText(text);
+        });
+      return;
+    }
+    // 3) 공유 창이 없는 PC: 복사
+    copyText(text);
+  }
+
+  // 카카오 JavaScript 키가 있으면 SDK를 불러와 초기화한다
+  function initKakao() {
+    var key = (window.LOTTO_CONFIG && LOTTO_CONFIG.kakaoJsKey) || '';
+    if (!key) return;
+    var script = document.createElement('script');
+    script.src = 'https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js';
+    script.onload = function () {
+      if (window.Kakao && !Kakao.isInitialized()) Kakao.init(key);
+    };
+    document.head.appendChild(script);
+  }
+
   /* ---------- 설치 마법사 / 라이선스 ---------- */
 
   var LICENSE_KEY = 'lottopick.license.v1';
@@ -607,6 +681,7 @@
   function init() {
     bindEvents();
     initQr();
+    initKakao();
     registerServiceWorker();
     if (!hasAcceptedLicense()) showSetup();
     var cached = restoreCachedDraws();
@@ -1105,6 +1180,8 @@
         case 'apply-filter':
           closeSheet();
           return runGenerate();
+        case 'share-candidates':
+          return shareCandidates();
         case 'check-updates':
           return checkForUpdates({ force: true });
         case 'open-sheet':
