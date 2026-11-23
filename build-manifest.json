@@ -1,0 +1,82 @@
+{
+  "name": "lottopick-lab",
+  "version": "1.0.0",
+  "builtAt": "2026-11-23T20:22:53.698Z",
+  "files": [
+    {
+      "path": "app-config.js",
+      "bytes": 143,
+      "sha256": "a78680c3e5348760dd6b23996e8c1861eb75482921fbac4ca2458bdaa703f56a"
+    },
+    {
+      "path": "assets/app.ico",
+      "bytes": 15851,
+      "sha256": "096c24591b96907d121889baea085a2f1842c56baa786117c2098239946271fc"
+    },
+    {
+      "path": "assets/icon-192.png",
+      "bytes": 8404,
+      "sha256": "fb8abc342590eea742bf1dfea746160ee239f7491a4c1580bf0ff2ad27cff26f"
+    },
+    {
+      "path": "assets/icon-256.png",
+      "bytes": 11719,
+      "sha256": "f5c05ad0f13e28492484e5ab4e7b2b3ffa183f4d2a3936c8193589115b65ae55"
+    },
+    {
+      "path": "assets/icon-512.png",
+      "bytes": 29544,
+      "sha256": "a78830d9a208fdad23aaccb9864eb1e27d159714222f44469801cdb0c90165d2"
+    },
+    {
+      "path": "assets/icon.svg",
+      "bytes": 1506,
+      "sha256": "8d0b02bb0c2ef2e4b9bdd5c0f42a7b5c663dbebfe12b45730ff800ca5c4ad804"
+    },
+    {
+      "path": "css/style.css",
+      "bytes": 37151,
+      "sha256": "13bd7942b1c10e1199474d9d9f218bf730d69b3cae5a8845a87c18bc264d668c"
+    },
+    {
+      "path": "data/draws.js",
+      "bytes": 194743,
+      "sha256": "eca4d176c3f03ee5315c48f2bba99daaca6c5ab6aa30291e41056a557b40272b"
+    },
+    {
+      "path": "index.html",
+      "bytes": 16639,
+      "sha256": "94ee28902ea5c8d31afc4336a74d7a6c084d6c36f39cc75e89634acd9cbfd4bb"
+    },
+    {
+      "path": "install.html",
+      "bytes": 14502,
+      "sha256": "9e53cd6ed80bb576ce2a5c6c1327a648d1872233671b8d99c62ece434a6ec7ad"
+    },
+    {
+      "path": "js/app.js",
+      "bytes": 44610,
+      "sha256": "4a945993c24911e25e5798739cb99850b80340d5be44fb1aece5cc34bafc96d8"
+    },
+    {
+      "path": "js/engine.js",
+      "bytes": 32777,
+      "sha256": "37ee6dc0fe3dfddd56f6a637eec556241e030d70a37b725412591fab51c806a1"
+    },
+    {
+      "path": "js/vendor/qrcode-generator.js",
+      "bytes": 56694,
+      "sha256": "18ae399f81182bc9de916e9c77b195df20cc58d6f2d55a62b085a299f1bf1780"
+    },
+    {
+      "path": "manifest.webmanifest",
+      "bytes": 649,
+      "sha256": "07805ab93e6f12ff0884808c1ba1558d9ff093aac5763407301892f356d4fe67"
+    },
+    {
+      "path": "sw.js",
+      "bytes": 1650,
+      "sha256": "511c44c8bc1f4cdbefb7ffe462661d9cd6dccf98489f725ea2ce52c8fcf08652"
+    }
+  ]
+}

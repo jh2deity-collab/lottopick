@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>LottoPick Lab 앱 설치 · 통계 분석 콘솔</title>
+  <meta name="description" content="스마트폰 홈 화면에 LottoPick Lab을 설치하세요." />
+  <meta name="theme-color" content="#0b1120" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" type="image/svg+xml" href="assets/icon.svg" />
+  <link rel="apple-touch-icon" href="assets/icon-192.png" />
+  <script src="app-config.js"></script>
+  <style>
+    :root {
+      --bg: #0b1120; --surface: #111a2e; --surface-2: #17223a;
+      --line: rgba(148, 163, 184, .16); --line-strong: rgba(148, 163, 184, .28);
+      --text: #dbe4f0; --text-strong: #f5f8fc; --muted: #8ea0b8; --faint: #5d6e86;
+      --accent: #38bdf8; --accent-2: #2dd4bf; --warn: #fbbf24; --danger: #f87171; --ok: #4ade80;
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      background:
+        radial-gradient(900px 500px at 90% -10%, rgba(56, 189, 248, .14), transparent 60%),
+        radial-gradient(700px 500px at -10% 110%, rgba(45, 212, 191, .10), transparent 60%),
+        var(--bg);
+      color: var(--text);
+      font-family: "Pretendard", "Malgun Gothic", "맑은 고딕", system-ui, -apple-system, sans-serif;
+      font-size: 15px; line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; }
+    .wrap { max-width: 720px; margin: 0 auto; padding: 22px 20px 40px; }
+
+    header { display: flex; align-items: center; gap: 12px; padding-bottom: 18px; }
+    header img { width: 40px; height: 40px; border-radius: 10px; }
+    header b { font-size: 16px; color: var(--text-strong); letter-spacing: -.01em; }
+    header a { margin-left: auto; font-size: 13px; color: var(--accent); text-decoration: none; }
+
+    .hero { padding: 18px 0 26px; }
+    .eyebrow { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+    h1 { margin: 10px 0 10px; font-size: 30px; line-height: 1.25; color: var(--text-strong); letter-spacing: -.02em; }
+    h1 span { background: linear-gradient(90deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .lead { margin: 0; color: var(--muted); font-size: 15px; }
+
+    .panel {
+      background: linear-gradient(160deg, rgba(23, 34, 58, .95), rgba(17, 26, 46, .95));
+      border: 1px solid var(--line); border-radius: 20px; padding: 24px;
+      box-shadow: 0 30px 70px -30px rgba(0, 0, 0, .7);
+    }
+    .panel h2 { margin: 0 0 6px; font-size: 20px; color: var(--text-strong); letter-spacing: -.01em; }
+    .panel p.sub { margin: 0 0 18px; color: var(--muted); font-size: 14px; }
+
+    .btn {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      width: 100%; padding: 14px 18px; border-radius: 14px; border: 1px solid transparent;
+      background: linear-gradient(135deg, #38bdf8, #2dd4bf); color: #06121f;
+      font: inherit; font-weight: 700; font-size: 15px; cursor: pointer; text-decoration: none;
+      box-shadow: 0 12px 26px -12px rgba(56, 189, 248, .7);
+    }
+    .btn:active { transform: translateY(1px); }
+    .btn.ghost { background: transparent; color: var(--text); border-color: var(--line-strong); box-shadow: none; font-weight: 600; }
+    .btn + .btn { margin-top: 10px; }
+
+    .steps { list-style: none; margin: 0 0 18px; padding: 0; display: grid; gap: 10px; }
+    .steps li {
+      display: flex; gap: 14px; align-items: center;
+      background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px;
+    }
+    .steps .n {
+      flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%;
+      display: grid; place-items: center; font-weight: 800; font-size: 13px;
+      background: linear-gradient(135deg, #38bdf8, #2dd4bf); color: #06121f;
+    }
+    .steps b { color: var(--text-strong); }
+
+    .qr-row { display: grid; grid-template-columns: 200px 1fr; gap: 22px; align-items: center; }
+    .qr {
+      width: 200px; height: 200px; padding: 12px; border-radius: 18px; background: #fff;
+      display: grid; place-items: center;
+      box-shadow: 0 16px 36px -18px rgba(0, 0, 0, .8);
+      transition: opacity .2s;
+    }
+    .qr svg { width: 100%; height: 100%; display: block; }
+    .qr-text { font-size: 13px; color: var(--muted); }
+    .qr-text .url {
+      display: block; margin: 8px 0 12px; padding: 10px 12px; border-radius: 10px;
+      background: var(--surface); border: 1px solid var(--line); color: var(--accent);
+      font-size: 12.5px; word-break: break-all;
+    }
+    .copy { background: transparent; border: 1px solid var(--line-strong); color: var(--text); border-radius: 10px; padding: 8px 14px; font: inherit; font-size: 13px; cursor: pointer; }
+    .copy:hover { border-color: var(--accent); color: var(--accent); }
+
+    .notice {
+      margin: 0 0 16px; padding: 12px 14px; border-radius: 12px; font-size: 13px; line-height: 1.6;
+      background: rgba(120, 53, 15, .22); border: 1px solid rgba(251, 191, 36, .35); color: #fde68a;
+    }
+    .done { text-align: center; }
+    .done .check {
+      width: 64px; height: 64px; margin: 0 auto 14px; border-radius: 50%;
+      display: grid; place-items: center; background: rgba(74, 222, 128, .14); color: var(--ok);
+      font-size: 30px; font-weight: 700;
+    }
+    .done h2 { margin: 0 0 6px; }
+
+    .art { display: inline-block; padding: 3px 9px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line-strong); color: var(--accent); font-size: 12px; font-weight: 600; }
+    footer { margin-top: 28px; color: var(--faint); font-size: 12px; line-height: 1.7; text-align: center; }
+
+    @media (max-width: 560px) {
+      h1 { font-size: 26px; }
+      .qr-row { grid-template-columns: 1fr; justify-items: center; text-align: center; }
+      .qr-text .url { text-align: left; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <img src="assets/icon.svg" alt="" />
+      <b>LottoPick Lab</b>
+      <a href="index.html">웹에서 바로 쓰기 →</a>
+    </header>
+
+    <section class="hero">
+      <div class="eyebrow">LottoPick Lab · 통계 분석 콘솔</div>
+      <h1>과거 회차 데이터를<br><span>휴대폰 홈 화면에서</span></h1>
+      <p class="lead">설치하면 앱처럼 바로 열리고, 오프라인에서도 기본 화면을 볼 수 있어요.</p>
+    </section>
+
+    <!-- 설치 완료 -->
+    <section class="panel done" data-show="installed" hidden>
+      <div class="check">✓</div>
+      <h2>설치가 완료되었어요</h2>
+      <p class="sub">홈 화면의 LottoPick 아이콘으로 바로 열 수 있어요.</p>
+      <a class="btn" href="index.html">분석 시작하기</a>
+    </section>
+
+    <!-- 앱 내 브라우저(카카오톡 등) -->
+    <section class="panel" data-show="open-browser" hidden>
+      <h2 id="ob-title">기본 브라우저로 열어 주세요</h2>
+      <p class="sub" id="ob-sub">지금 화면에서는 설치할 수 없어요.</p>
+      <ol class="steps">
+        <li><span class="n">1</span><span>오른쪽 위 메뉴(⋯)를 누르세요</span></li>
+        <li><span class="n">2</span><span id="ob-step2"><b>다른 브라우저로 열기</b></span></li>
+      </ol>
+      <a class="btn ghost" href="index.html">설치하지 않고 바로 시작</a>
+    </section>
+
+    <!-- 안드로이드 -->
+    <section class="panel" data-show="android" hidden>
+      <h2>안드로이드에 설치</h2>
+      <p class="sub">Chrome · 삼성 인터넷에서 설치 버튼 한 번이면 끝나요.</p>
+      <button class="btn" id="install-btn" data-show-when="prompt" hidden>⬇ LottoPick Lab 설치</button>
+      <ol class="steps" id="android-steps">
+        <li><span class="n">1</span><span>브라우저 메뉴(⋮)를 누르세요</span></li>
+        <li><span class="n">2</span><span><b>앱 설치</b> 또는 <b>홈 화면에 추가</b>를 선택하세요</span></li>
+      </ol>
+      <a class="btn ghost" href="index.html">설치하지 않고 바로 시작</a>
+    </section>
+
+    <!-- 아이폰 -->
+    <section class="panel" data-show="ios" hidden>
+      <h2>아이폰에 설치</h2>
+      <p class="sub">Safari에서 세 단계면 홈 화면에 추가돼요.</p>
+      <ol class="steps">
+        <li><span class="n">1</span><span>하단의 <b>공유</b> 버튼(□↑)을 누르세요</span></li>
+        <li><span class="n">2</span><span><b>홈 화면에 추가</b>를 선택하세요</span></li>
+        <li><span class="n">3</span><span>오른쪽 위 <b>추가</b>를 누르세요</span></li>
+      </ol>
+      <a class="btn ghost" href="index.html">설치하지 않고 바로 시작</a>
+    </section>
+
+    <!-- PC: QR로 휴대폰에서 열기 -->
+    <section class="panel" data-show="desktop" hidden>
+      <h2>휴대폰으로 스캔하세요</h2>
+      <p class="sub">카메라로 QR을 비추면 이 설치 페이지가 휴대폰에서 열려요.</p>
+      <div class="notice" id="https-warn" hidden>
+        이 주소는 보안 연결(HTTPS)이 아니어서 홈 화면 설치가 제한될 수 있어요.
+        배포 주소를 설정하면(app-config.js 또는 빌드 시 --public-url) 설치가 가능해집니다.
+      </div>
+      <div class="qr-row">
+        <div class="qr" id="qr" role="img" aria-label="설치 페이지 QR 코드"></div>
+        <div class="qr-text">
+          휴대폰 카메라로 QR을 스캔하세요.
+          <span class="url" id="page-url"></span>
+          <button class="copy" id="copy-btn" type="button">주소 복사</button>
+        </div>
+      </div>
+      <button class="btn ghost" id="pc-install" hidden style="margin-top:18px">이 PC에도 앱으로 설치</button>
+    </section>
+
+    <footer>
+      LottoPick Lab · 과거 회차 데이터의 통계 지표 분석 도구<br />
+      당첨 번호를 예측하거나 확정하지 않습니다. · Copyright © 2026 SNPE.Inc.
+    </footer>
+  </div>
+
+  <script src="js/vendor/qrcode-generator.js"></script>
+  <script>
+    (function () {
+      var ua = navigator.userAgent;
+      var isIOS = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+      var isAndroid = /Android/i.test(ua);
+      // 카카오톡·인스타그램 등 앱 안의 브라우저는 설치 기능이 없다
+      var inApp = /KAKAOTALK|NAVER|Instagram|FBAN|FBAV|Line\/|DaumApps/i.test(ua);
+      var iosSafari = isIOS && /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS/.test(ua) && !inApp;
+      var standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+      var deferred = null;
+
+      function show(name) {
+        document.querySelectorAll("[data-show]").forEach(function (el) {
+          el.hidden = el.getAttribute("data-show") !== name;
+        });
+      }
+
+      // QR이 가리킬 설치 페이지 주소: 공개 주소(HTTPS)가 있으면 그것을, 없으면 지금 주소를 쓴다
+      var pageUrl = (function () {
+        var base = (window.LOTTO_CONFIG && LOTTO_CONFIG.publicUrl) || "";
+        return base ? base.replace(/\/?$/, "/") + "install.html" : location.href.split("#")[0].split("?")[0];
+      })();
+
+      if (standalone) {
+        show("installed");
+      } else if (inApp) {
+        show("open-browser");
+        document.getElementById("ob-sub").textContent = "카카오톡 · 인스타그램 같은 앱 안의 브라우저에서는 설치할 수 없어요.";
+        document.getElementById("ob-step2").innerHTML = isIOS ? "<b>Safari로 열기</b>" : "<b>다른 브라우저로 열기 → Chrome</b>";
+      } else if (isIOS && !iosSafari) {
+        show("open-browser");
+        document.getElementById("ob-title").textContent = "Safari로 열어 주세요";
+        document.getElementById("ob-sub").textContent = "아이폰 · 아이패드는 Safari에서만 홈 화면에 추가할 수 있어요.";
+        document.getElementById("ob-step2").innerHTML = "주소를 복사해 <b>Safari</b>에 붙여 넣기";
+      } else if (isIOS) {
+        show("ios");
+      } else if (isAndroid) {
+        show("android");
+      } else {
+        show("desktop");
+        document.getElementById("page-url").textContent = pageUrl;
+        if (!/^https:/.test(pageUrl) || /\/\/(localhost|127\.|10\.|192\.168\.)/.test(pageUrl)) {
+          document.getElementById("https-warn").hidden = false;
+          document.getElementById("qr").style.opacity = ".4";
+        }
+        if (typeof window.qrcode === "function") {
+          var q = window.qrcode(0, "M");
+          q.addData(pageUrl);
+          q.make();
+          document.getElementById("qr").innerHTML = q.createSvgTag(6, 0);
+        } else {
+          document.getElementById("qr").textContent = "QR을 불러오지 못했어요";
+        }
+      }
+
+      window.addEventListener("beforeinstallprompt", function (e) {
+        e.preventDefault();
+        deferred = e;
+        if (isAndroid && !inApp) {
+          document.getElementById("install-btn").hidden = false;
+          document.getElementById("android-steps").hidden = true;
+        }
+        if (!isAndroid && !isIOS) document.getElementById("pc-install").hidden = false;
+      });
+
+      function doInstall() {
+        if (!deferred) return;
+        deferred.prompt();
+        deferred.userChoice.then(function (r) {
+          deferred = null;
+          if (r.outcome === "accepted") show("installed");
+        });
+      }
+      document.getElementById("install-btn").onclick = doInstall;
+      document.getElementById("pc-install").onclick = doInstall;
+      window.addEventListener("appinstalled", function () { show("installed"); });
+
+      document.getElementById("copy-btn").onclick = function () {
+        var btn = document.getElementById("copy-btn");
+        (navigator.clipboard ? navigator.clipboard.writeText(pageUrl) : Promise.reject()).then(
+          function () { btn.textContent = "복사했어요 ✓"; },
+          function () { window.prompt("주소를 복사하세요", pageUrl); }
+        );
+      };
+
+      // 오프라인 사용을 위해 서비스 워커 등록 (HTTPS 또는 localhost에서만 동작)
+      if ("serviceWorker" in navigator && location.protocol.indexOf("http") === 0) {
+        navigator.serviceWorker.register("sw.js").catch(function () {});
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <!-- LottoPick Lab 심벌: 출현 빈도 히트맵 (3x3 격자, 농도가 빈도를 나타냄) -->
+  <defs>
+    <linearGradient id="lp-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f172a"/>
+      <stop offset="1" stop-color="#1e293b"/>
+    </linearGradient>
+    <linearGradient id="lp-peak" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#38bdf8"/>
+      <stop offset="1" stop-color="#2dd4bf"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 바탕 -->
+  <rect x="8" y="8" width="240" height="240" rx="56" fill="url(#lp-bg)"/>
+
+  <!-- 히트맵 격자: 칸 56, 간격 12, 시작 (32, 32) -->
+  <g fill="#38bdf8">
+    <rect x="32"  y="32"  width="56" height="56" rx="14" fill-opacity="0.22"/>
+    <rect x="100" y="32"  width="56" height="56" rx="14" fill-opacity="0.50"/>
+    <rect x="168" y="32"  width="56" height="56" rx="14" fill-opacity="0.85"/>
+    <rect x="32"  y="100" width="56" height="56" rx="14" fill-opacity="0.38"/>
+    <rect x="168" y="100" width="56" height="56" rx="14" fill-opacity="0.60"/>
+    <rect x="32"  y="168" width="56" height="56" rx="14" fill-opacity="0.14"/>
+    <rect x="100" y="168" width="56" height="56" rx="14" fill-opacity="0.68"/>
+    <rect x="168" y="168" width="56" height="56" rx="14" fill-opacity="0.32"/>
+  </g>
+  <!-- 가장 높은 빈도 칸 (강조) -->
+  <rect x="100" y="100" width="56" height="56" rx="14" fill="url(#lp-peak)"/>
+</svg>

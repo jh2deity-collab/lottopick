@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>로또 통계 분석 대시보드</title>
+  <link rel="icon" type="image/svg+xml" href="assets/icon.svg" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="assets/icon-192.png" />
+  <meta name="theme-color" content="#0b1120" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="LottoPick" />
+  <meta name="application-name" content="LottoPick Lab" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="app">
+
+    <!-- 좌측 고정 사이드바 -->
+    <aside class="sidebar">
+      <div class="brand">
+        <img class="brand-logo" src="assets/icon.svg" alt="LottoPick Lab 로고" width="36" height="36" />
+        <div>
+          <div class="brand-name">LottoPick Lab</div>
+          <div class="brand-sub">통계 분석 콘솔</div>
+        </div>
+      </div>
+      <nav class="nav" aria-label="주요 메뉴">
+        <div class="nav-section">메뉴</div>
+        <button class="nav-btn active" data-view="dashboard">
+          <span class="nav-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+          </span>
+          <span class="nav-text">분석 대시보드</span>
+        </button>
+        <button class="nav-btn" data-view="db">
+          <span class="nav-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg>
+          </span>
+          <span class="nav-text">역대 회차 DB</span>
+        </button>
+        <button class="nav-btn" data-view="simulator">
+          <span class="nav-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M3 17l5-5 4 4 8-8"/><path d="M14 8h6v6"/></svg>
+          </span>
+          <span class="nav-text">백테스팅 시뮬레이터</span>
+        </button>
+        <button class="nav-btn" data-view="saved">
+          <span class="nav-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></svg>
+          </span>
+          <span class="nav-text">저장된 조합함</span>
+          <span class="nav-count" id="nav-saved-count" hidden>0</span>
+        </button>
+      </nav>
+      <!-- 스마트폰 설치용 QR 코드 -->
+      <div class="qr-card" id="qr-card">
+        <div class="qr-head">
+          <span class="qr-title">스마트폰에 설치</span>
+          <span class="qr-badge" id="qr-status">준비 중</span>
+        </div>
+        <div class="qr-body">
+          <div class="qr-box" id="qr-box" role="img" aria-label="접속 QR 코드"></div>
+          <div class="qr-info">
+            <div class="qr-url" id="qr-url">주소 확인 중…</div>
+            <p class="qr-guide" id="qr-guide">스마트폰 카메라로 QR을 스캔하세요.</p>
+            <button class="btn small primary" data-action="install-app" id="install-btn" hidden>홈 화면에 설치</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-foot" id="sidebar-foot">
+        <div class="foot-head"><span class="status-dot" aria-hidden="true"></span><span class="foot-label">데이터 상태</span></div>
+        <div id="data-status" class="foot-value">확인 중…</div>
+      </div>
+      <div class="license-mark">
+        <span>© 2026 SNPE.Inc</span>
+        <button class="link-btn" data-action="open-license">라이선스</button>
+      </div>
+    </aside>
+
+    <!-- 메인 영역 -->
+    <main class="main">
+      <header class="page-head">
+        <div>
+          <h1 id="page-title">분석 대시보드</h1>
+          <p class="page-desc">과거 회차 데이터의 통계 지표 기반 조합 필터링 · 패턴 적합도 스코어 · 과거 회차 시뮬레이션</p>
+        </div>
+      </header>
+
+      <div id="global-messages" class="messages"></div>
+
+      <!-- ===== 분석 대시보드 ===== -->
+      <section data-view-panel="dashboard">
+        <div id="stat-tiles" class="stat-row"></div>
+
+        <div class="card stat-test-card">
+          <div class="card-head">
+            <h3>통계 검정 (신뢰도 점검)</h3>
+            <span class="muted">무작위 데이터와 구별되는지 확인합니다</span>
+          </div>
+          <div class="test-grid">
+            <div class="test-item">
+              <div class="stat-label">번호 출현 균등성 (카이제곱)</div>
+              <div id="test-chi" class="test-value">계산 중…</div>
+            </div>
+            <div class="test-item">
+              <div class="stat-label">과거 신호 검증 (워크포워드)</div>
+              <div id="test-wf" class="test-value">버튼을 눌러 실행</div>
+              <button class="btn small" data-action="run-wf">워크포워드 검증 실행</button>
+              <div id="test-pipeline" class="test-value muted">추천 파이프라인 검증: 버튼을 눌러 실행</div>
+              <button class="btn small" data-action="run-pipeline">추천 파이프라인 검증 실행</button>
+            </div>
+            <div class="test-item">
+              <div class="stat-label">선택 조합의 무작위 기준선</div>
+              <div id="test-baseline" class="test-value">추천 조합을 선택하세요</div>
+            </div>
+          </div>
+          <p class="note">p-value가 0.05 이상이면 무작위 데이터와 통계적으로 구별되지 않습니다. 이 경우 점수 차이는 우연일 가능성이 큽니다.</p>
+        </div>
+
+        <!-- 확률과 기대 수익 -->
+        <div class="prob-row">
+          <div class="card" id="odds-card"></div>
+          <div class="card" id="ev-card"></div>
+          <div class="card" id="funnel-card"></div>
+        </div>
+
+        <div id="dash-messages" class="messages"></div>
+
+        <div class="layout-main">
+          <div class="col">
+            <!-- 추천 조합 & 적합도 카드 -->
+            <div class="card" id="recommend"></div>
+
+            <!-- 후보 목록 -->
+            <div class="card">
+              <div class="card-head"><h3>후보 조합 상위 목록</h3><span class="muted" id="cand-meta"></span></div>
+              <div id="candidates" class="cand-list"></div>
+            </div>
+
+            <!-- 히트맵 -->
+            <div class="card">
+              <div class="card-head">
+                <h3>번호 출현 히트맵 (1–45)</h3>
+                <span class="muted">전체 회차 기준 출현 횟수</span>
+              </div>
+              <div id="heatmap" class="heatmap"></div>
+              <div class="legend">
+                <span>적음</span><span class="legend-bar"></span><span>많음</span>
+              </div>
+              <div id="hot-lists" class="hot-lists"></div>
+            </div>
+
+            <!-- 번호대 분포 -->
+            <div class="card">
+              <div class="card-head">
+                <h3>번호대별 출현 분포</h3>
+                <span class="muted" id="band-meta"></span>
+              </div>
+              <div id="bands" class="bands"></div>
+            </div>
+          </div>
+
+          <!-- 필터 컨트롤 패널 -->
+          <aside class="col">
+            <div class="card filter-panel">
+              <div class="card-head"><h3>필터 컨트롤 패널</h3></div>
+
+              <div class="field">
+                <label>번호 지정 모드 <span class="hint">번호판을 눌러 설정</span></label>
+                <div class="seg">
+                  <button data-mode="fixed" class="seg-btn active">고정수</button>
+                  <button data-mode="exclude" class="seg-btn">제외수</button>
+                </div>
+                <div id="picker" class="picker"></div>
+              </div>
+
+              <div class="field">
+                <label>고정수 <span class="hint">최대 6개</span></label>
+                <div id="chips-fixed" class="chips"></div>
+              </div>
+
+              <div class="field">
+                <label>제외수</label>
+                <div id="chips-exclude" class="chips"></div>
+              </div>
+
+              <div class="field">
+                <label>홀수 개수 (0~6)</label>
+                <div class="row2">
+                  <select data-filter="oddMin" id="f-odd-min"></select>
+                  <span class="tilde">~</span>
+                  <select data-filter="oddMax" id="f-odd-max"></select>
+                </div>
+              </div>
+
+              <div class="field">
+                <label>번호 합계 (21~255)</label>
+                <div class="row2">
+                  <input type="number" data-filter="sumMin" id="f-sum-min" min="21" max="255" />
+                  <span class="tilde">~</span>
+                  <input type="number" data-filter="sumMax" id="f-sum-max" min="21" max="255" />
+                </div>
+              </div>
+
+              <div class="field">
+                <label>AC값 최소 <span class="hint">0~10</span></label>
+                <input type="number" data-filter="minAC" id="f-min-ac" min="0" max="10" />
+              </div>
+
+              <div class="field">
+                <label>재현용 시드 <span class="hint">비우면 매번 다른 샘플링</span></label>
+                <input type="number" id="f-seed" placeholder="예: 42" />
+              </div>
+
+              <div class="btn-row">
+                <button class="btn ghost" data-action="reset-filter">초기화</button>
+                <button class="btn primary" data-action="apply-filter">조건 적용 · 후보 생성</button>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- ===== 역대 회차 DB ===== -->
+      <section data-view-panel="db" hidden>
+        <div class="card">
+          <div class="card-head">
+            <h3>역대 회차 DB</h3>
+            <input type="search" id="db-search" class="search" placeholder="회차 번호 검색 (예: 120)" />
+          </div>
+          <div class="field">
+            <label>실제 회차 CSV 불러오기 <span class="hint">형식: 회차,번호1,번호2,번호3,번호4,번호5,번호6,보너스 (헤더 행 가능)</span></label>
+            <input type="file" id="db-file" accept=".csv,text/csv" />
+            <div id="db-import-msg"></div>
+          </div>
+          <div id="db-table" class="table-wrap"></div>
+          <div id="db-pager" class="pager"></div>
+        </div>
+      </section>
+
+      <!-- ===== 백테스팅 시뮬레이터 ===== -->
+      <section data-view-panel="simulator" hidden>
+        <div class="card">
+          <div class="card-head"><h3>조합 입력</h3><span class="muted">과거 회차에 대입해 일치 개수를 집계합니다</span></div>
+          <div class="sim-input">
+            <input type="text" id="sim-input" placeholder="예: 3, 12, 19, 27, 33, 41" />
+            <button class="btn ghost" data-action="sim-load-current">현재 추천 조합 불러오기</button>
+            <button class="btn primary" data-action="sim-run">백테스트 실행</button>
+          </div>
+        </div>
+        <div id="sim-result"></div>
+      </section>
+
+      <!-- ===== 저장된 조합함 ===== -->
+      <section data-view-panel="saved" hidden>
+        <!-- 구매 계획 · 예산 보호 -->
+        <div class="card budget-card">
+          <div class="card-head">
+            <h3>구매 계획 · 예산 보호</h3>
+            <span class="muted">구매 전에 기대 손실을 먼저 확인하세요</span>
+          </div>
+          <div class="budget-grid">
+            <div class="field">
+              <label>주당 구매 장수</label>
+              <input type="number" id="bd-tickets" min="0" max="100" value="5" />
+            </div>
+            <div class="field">
+              <label>기간 (주)</label>
+              <input type="number" id="bd-weeks" min="0" max="520" value="4" />
+            </div>
+            <div class="field">
+              <label>예산 (원)</label>
+              <input type="number" id="bd-budget" min="0" step="1000" value="20000" />
+            </div>
+          </div>
+          <div id="bd-result"></div>
+
+          <div class="selfcheck">
+            <div class="card-head" style="margin-bottom:10px"><h3>자가 점검</h3><span class="muted">해당하는 항목을 체크하세요</span></div>
+            <div id="sc-list" class="sc-list"></div>
+            <div id="sc-result"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h3>저장된 조합함</h3>
+            <button class="btn ghost small" data-action="clear-saved">전체 삭제</button>
+          </div>
+          <div id="saved-list"></div>
+        </div>
+      </section>
+
+      <footer class="disclaimer">
+        본 도구는 과거 회차 데이터의 통계 지표를 분석·시뮬레이션하는 용도이며, 당첨 번호를 예측하거나 확정하지 않습니다.
+        <div class="copyright">Copyright © 2026 SNPE.Inc. All rights reserved. · LottoPick Lab v1.0.0</div>
+      </footer>
+    </main>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <!-- 설치 마법사 (첫 실행 시 표시, 라이선스 동의 후 저장) -->
+  <div id="setup" class="setup-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="setup-title">
+    <div class="setup-card">
+      <header class="setup-head">
+        <img class="brand-logo big" src="assets/icon.svg" alt="LottoPick Lab 로고" width="56" height="56" />
+        <div>
+          <div class="setup-kicker">LottoPick Lab · 설치 마법사</div>
+          <h2 id="setup-title">LottoPick Lab 설치를 시작합니다</h2>
+          <p class="setup-sub">분석 콘솔을 사용하기 전에 라이선스 약관을 확인하고 동의해 주세요.</p>
+        </div>
+      </header>
+
+      <ol class="steps">
+        <li class="done"><span>1</span>설치 준비</li>
+        <li class="active"><span>2</span>라이선스 동의</li>
+        <li><span>3</span>설치 완료</li>
+      </ol>
+
+      <div class="license-box" tabindex="0">
+        <p class="license-title">LottoPick Lab 최종 사용자 라이선스 계약 <span class="draft">초안</span></p>
+        <p>Copyright © 2026 SNPE.Inc. All rights reserved.</p>
+        <ol>
+          <li>본 소프트웨어와 분석 결과물은 SNPE.Inc의 자산이며, 저작권법과 관련 법령의 보호를 받습니다.</li>
+          <li>사용자는 개인적·비상업적 분석 목적에 한해 본 소프트웨어를 사용할 수 있습니다.</li>
+          <li>SNPE.Inc의 사전 허가 없이 복제, 재배포, 역설계, 상업적 이용을 할 수 없습니다.</li>
+          <li>본 도구는 과거 회차 데이터의 통계 분석 도구이며, 당첨 번호를 예측하거나 확정하지 않습니다. 분석 결과의 활용에 따른 판단과 책임은 사용자에게 있습니다.</li>
+          <li>데이터는 제3자가 공개한 자료를 기반으로 하며, 그 정확성을 보장하지 않습니다.</li>
+          <li>본 약관은 사전 고지 후 변경될 수 있으며, 변경 후 사용을 계속하면 변경된 약관에 동의한 것으로 봅니다.</li>
+        </ol>
+      </div>
+
+      <label class="agree">
+        <input type="checkbox" id="setup-agree" />
+        <span>위 라이선스 약관을 읽었으며 동의합니다.</span>
+      </label>
+
+      <div class="setup-foot">
+        <span class="muted">© 2026 SNPE.Inc · v1.0.0</span>
+        <button class="btn primary" id="setup-start" data-action="license-accept" disabled>설치 완료 · 시작하기</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="data/draws.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="app-config.js"></script>
+  <script src="js/vendor/qrcode-generator.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
